@@ -5,7 +5,7 @@ getgenv().Setting = {
     RagdollTime = 3
 }
 
-Setting.HoldJumpPower = 400
+Setting.HoldJumpPower = 450
 Setting.HoldSingleTime = 0.25
 Setting.HoldLoopTime = 1
 Setting.HoldLoopDelay = 0 -- tÃÂ¡ÃÂ»ÃÂc ÃÂÃÂÃÂ¡ÃÂ»ÃÂ spam khi giÃÂ¡ÃÂ»ÃÂ¯ lÃÂÃÂ¢u
