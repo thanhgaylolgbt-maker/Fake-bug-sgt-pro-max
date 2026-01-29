@@ -1,0 +1,770 @@
+getgenv().Setting = {
+    JumpKey = "G",
+    ForwardJumpSpeed = 335,
+    UpAngle = 5,
+    RagdollTime = 3
+}
+
+Setting.HoldJumpPower = 400
+Setting.HoldSingleTime = 0.25
+Setting.HoldLoopTime = 1
+Setting.HoldLoopDelay = 0 -- tÃÂ¡ÃÂ»ÃÂc ÃÂÃÂÃÂ¡ÃÂ»ÃÂ spam khi giÃÂ¡ÃÂ»ÃÂ¯ lÃÂÃÂ¢u
+
+-- SERVICES
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Player = Players.LocalPlayer
+
+-- ================================
+-- GUI
+-- ================================
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+ScreenGui.IgnoreGuiInset = true
+
+local ButtonHolder = Instance.new("Frame", ScreenGui)
+ButtonHolder.Size = UDim2.new(0,196,0,48)
+ButtonHolder.Position = UDim2.new(1,-240,0,30)
+ButtonHolder.BackgroundTransparency = 1
+
+local JumpButton = Instance.new("TextButton", ButtonHolder)
+JumpButton.Size = UDim2.new(0,160,0,48)
+JumpButton.Text = "HIGH JUMP"
+JumpButton.Font = Enum.Font.GothamBold
+JumpButton.TextSize = 20
+JumpButton.TextColor3 = Color3.new(1,1,1)
+JumpButton.BackgroundColor3 = Color3.new(0,0,0)
+JumpButton.AutoButtonColor = false
+
+local ToggleButton = Instance.new("TextButton", ButtonHolder)
+ToggleButton.Size = UDim2.new(0,36,0,48)
+ToggleButton.Position = UDim2.new(0,160,0,0)
+ToggleButton.Text = "Menu"
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 14
+ToggleButton.TextColor3 = Color3.fromRGB(80,255,120)
+ToggleButton.BackgroundColor3 = Color3.new(0,0,0)
+ToggleButton.AutoButtonColor = false
+
+-- ================================
+-- MENU
+-- ================================
+local Menu = Instance.new("Frame", ScreenGui)
+Menu.Size = UDim2.new(0,260,0,235)
+Menu.Position = UDim2.new(0.5,-130,0.5,-120)
+Menu.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Menu.Visible = false
+Instance.new("UICorner", Menu)
+
+-- b / t BUTTON
+local BT = Instance.new("TextButton", Menu)
+BT.Size = UDim2.new(0,32,0,32)
+BT.Position = UDim2.new(1,-36,0,4)
+BT.Text = "b"
+BT.Font = Enum.Font.GothamBold
+BT.TextSize = 16
+BT.TextColor3 = Color3.fromRGB(80,255,120)
+BT.BackgroundColor3 = Color3.fromRGB(40,40,40)
+
+-- JUMP MODE BUTTON (MoveDirection / Camera)
+local ModeBT = Instance.new("TextButton", Menu)
+ModeBT.Size = UDim2.new(0,60,0,26)
+ModeBT.Position = UDim2.new(1,-96,0,40) -- náº±m dÆ°á»i b/t
+ModeBT.Text = "CAM"
+ModeBT.Font = Enum.Font.GothamBold
+ModeBT.TextSize = 12
+ModeBT.TextColor3 = Color3.fromRGB(255,200,120)
+ModeBT.BackgroundColor3 = Color3.fromRGB(40,40,40)
+
+-- FLY BUTTON
+local FlyBT = Instance.new("TextButton", Menu)
+FlyBT.Size = UDim2.new(0,32,0,32)
+FlyBT.Position = UDim2.new(1,-72,0,4)
+FlyBT.Text = "F"
+FlyBT.Font = Enum.Font.GothamBold
+FlyBT.TextSize = 16
+FlyBT.TextColor3 = Color3.fromRGB(120,200,255)
+FlyBT.BackgroundColor3 = Color3.fromRGB(40,40,40)
+
+-- COPY CONFIG BUTTON
+local CopyBT = Instance.new("TextButton", Menu)
+CopyBT.Size = UDim2.new(0,32,0,32)
+CopyBT.Position = UDim2.new(1,-108,0,4) -- nÃ¡ÂºÂ±m bÃÂªn trÃÂ¡i nÃÂºt F
+CopyBT.Text = "C"
+CopyBT.Font = Enum.Font.GothamBold
+CopyBT.TextSize = 16
+CopyBT.TextColor3 = Color3.fromRGB(255,200,120)
+CopyBT.BackgroundColor3 = Color3.fromRGB(40,40,40)
+
+local Title = Instance.new("TextLabel", Menu)
+Title.Size = UDim2.new(1,-90,0,30)
+Title.Position = UDim2.new(0,10,0,8)
+Title.Text = "Thànhđz"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundTransparency = 1
+
+-- SPEED
+local SpeedLabel = Instance.new("TextLabel", Menu)
+SpeedLabel.Text = "Speed"
+SpeedLabel.Size = UDim2.new(1,-20,0,20)
+SpeedLabel.Position = UDim2.new(0,10,0,46)
+SpeedLabel.TextColor3 = Color3.new(1,1,1)
+SpeedLabel.BackgroundTransparency = 1
+
+local SpeedBox = Instance.new("TextBox", Menu)
+SpeedBox.Size = UDim2.new(1,-20,0,30)
+SpeedBox.Position = UDim2.new(0,10,0,66)
+SpeedBox.Text = Setting.ForwardJumpSpeed
+SpeedBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+SpeedBox.TextColor3 = Color3.new(1,1,1)
+
+-- ANGLE
+local AngleLabel = Instance.new("TextLabel", Menu)
+AngleLabel.Text = "Up Angle (°)"
+AngleLabel.Size = UDim2.new(1,-20,0,20)
+AngleLabel.Position = UDim2.new(0,10,0,100)
+AngleLabel.TextColor3 = Color3.new(1,1,1)
+AngleLabel.BackgroundTransparency = 1
+
+local AngleBox = Instance.new("TextBox", Menu)
+AngleBox.Size = UDim2.new(1,-20,0,30)
+AngleBox.Position = UDim2.new(0,10,0,120)
+AngleBox.Text = Setting.UpAngle
+AngleBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+AngleBox.TextColor3 = Color3.new(1,1,1)
+
+-- RAGDOLL TIME
+local RagdollLabel = Instance.new("TextLabel", Menu)
+RagdollLabel.Text = "Ragdoll Time (0.5 - 10s)"
+RagdollLabel.Size = UDim2.new(1,-20,0,20)
+RagdollLabel.Position = UDim2.new(0,10,0,190)
+RagdollLabel.TextColor3 = Color3.new(1,1,1)
+RagdollLabel.BackgroundTransparency = 1
+
+local RagdollBar = Instance.new("Frame", Menu)
+RagdollBar.Size = UDim2.new(1,-20,0,10)
+RagdollBar.Position = UDim2.new(0,10,0,214)
+RagdollBar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+
+local RagdollFill = Instance.new("Frame", RagdollBar)
+RagdollFill.BackgroundColor3 = Color3.fromRGB(120,200,255)
+
+local RagdollValue = Instance.new("TextLabel", Menu)
+RagdollValue.Size = UDim2.new(1,-20,0,18)
+RagdollValue.Position = UDim2.new(0,10,0,224)
+RagdollValue.TextColor3 = Color3.fromRGB(150,200,255)
+RagdollValue.BackgroundTransparency = 1
+
+-- TRANSPARENCY
+local TransLabel = Instance.new("TextLabel", Menu)
+TransLabel.Text = "Button Transparency"
+TransLabel.Size = UDim2.new(1,-20,0,20)
+TransLabel.Position = UDim2.new(0,10,0,154)
+TransLabel.TextColor3 = Color3.new(1,1,1)
+TransLabel.BackgroundTransparency = 1
+
+local TransBar = Instance.new("Frame", Menu)
+TransBar.Size = UDim2.new(1,-20,0,10)
+TransBar.Position = UDim2.new(0,10,0,178)
+TransBar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+
+local TransFill = Instance.new("Frame", TransBar)
+TransFill.BackgroundColor3 = Color3.fromRGB(120,200,255)
+
+local PercentLabel = Instance.new("TextLabel", Menu)
+PercentLabel.Size = UDim2.new(0,50,0,18)
+PercentLabel.Position = UDim2.new(1,-60,0,170)
+PercentLabel.Font = Enum.Font.GothamBold
+PercentLabel.TextSize = 12
+PercentLabel.TextColor3 = Color3.fromRGB(200,200,200)
+PercentLabel.BackgroundTransparency = 1
+
+-- ================================
+-- STATE
+-- ================================
+local Enabled = true
+local JumpByMoveDirection = true -- OFF máº·c Äá»nh
+local ButtonTransparency = 0.55
+
+--HighJump
+
+local function UpJump(power)
+    local char = Player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root then return end
+
+    hum.PlatformStand = false
+    hum:ChangeState(Enum.HumanoidStateType.Jumping)
+
+    root.AssemblyLinearVelocity =
+        Vector3.new(root.AssemblyLinearVelocity.X, power, root.AssemblyLinearVelocity.Z)
+end
+
+-- ================================
+-- TRANSPARENCY LOGIC
+-- ================================
+local function UpdateButtonTransparency()
+    JumpButton.BackgroundTransparency = ButtonTransparency
+    JumpButton.TextTransparency = ButtonTransparency
+
+    if Menu.Visible then
+        ToggleButton.BackgroundTransparency = 0.35
+        ToggleButton.TextTransparency = 0
+    else
+        ToggleButton.BackgroundTransparency = ButtonTransparency
+        ToggleButton.TextTransparency = ButtonTransparency
+    end
+end
+
+TransFill.Size = UDim2.new(1 - ButtonTransparency,0,1,0)
+PercentLabel.Text = math.floor((1 - ButtonTransparency) * 100) .. "%"
+UpdateButtonTransparency()
+
+-- ================================
+-- RAGDOLL (FIX DOUBLE JUMP BUG)
+-- ================================
+local Ragdolling = false
+local HeartbeatConn
+local ragdollToken = 0 -- ID cho mÃÂÃÂ¡ÃÂÃÂ»ÃÂÃÂi lÃÂÃÂ¡ÃÂÃÂºÃÂÃÂ§n ragdoll
+
+local function StopRagdoll(hum)
+    Ragdolling = false
+    if HeartbeatConn then
+        HeartbeatConn:Disconnect()
+        HeartbeatConn = nil
+    end
+    if hum then
+        hum.PlatformStand = false
+        hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+    end
+end
+
+local function StartRagdoll(char)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root then return end
+
+    ragdollToken += 1
+    local myToken = ragdollToken
+
+    StopRagdoll(hum)
+
+    -- 🔴🔴🔴 RESET ROTATION X/Z 1 LẦN DUY NHẤT (ĐẶT ĐÚNG CHỖ) 🔴🔴🔴
+    root.AssemblyAngularVelocity = Vector3.zero
+
+    local pos = root.Position
+    local _, y, _ = root.CFrame:ToEulerAnglesYXZ()
+    root.CFrame = CFrame.new(pos) * CFrame.Angles(0, y, 0)
+    -- 🔴🔴🔴 HẾT RESET 🔴🔴🔴
+
+    Ragdolling = true
+
+    HeartbeatConn = RunService.Heartbeat:Connect(function()
+        if not Ragdolling then return end
+        hum.PlatformStand = true
+        hum:ChangeState(Enum.HumanoidStateType.Physics)
+    end)
+
+    task.delay(Setting.RagdollTime, function()
+        if myToken ~= ragdollToken then return end
+        StopRagdoll(hum)
+    end)
+end
+
+-- ================================
+-- JUMP
+-- ================================
+local function DoJump()
+    if not Enabled then return end
+
+    local char = Player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root then return end
+
+    local rad = math.rad(Setting.UpAngle)
+local moveDir
+
+if JumpByMoveDirection and hum.MoveDirection.Magnitude > 0.1 then
+    -- MODE MOVE: giữ nguyên (có Y theo UpAngle)
+    moveDir = hum.MoveDirection.Unit
+else
+    -- MODE CAM: CHỈ lấy hướng ngang
+    local camLook = workspace.CurrentCamera.CFrame.LookVector
+    moveDir = Vector3.new(camLook.X, 0, camLook.Z)
+
+    if moveDir.Magnitude < 0.01 then
+        moveDir = Vector3.new(0, 0, -1)
+    end
+
+    moveDir = moveDir.Unit
+end
+
+local dir = (moveDir * math.cos(rad) + Vector3.new(0, math.sin(rad), 0)).Unit
+
+-- KHÔNG cho Jumping
+hum.PlatformStand = true
+hum:ChangeState(Enum.HumanoidStateType.Physics)
+
+-- đẩy lực trực tiếp
+root.AssemblyLinearVelocity = dir * Setting.ForwardJumpSpeed
+
+-- ragdoll ngay, không delay
+StartRagdoll(char)
+end
+
+local CONFIG_TEXT = [[
+{ 
+    "FLogNetwork": "7",
+    "FFlagFasterPreciseTime4": "True",
+"FIntDebugForceMSAASamples": "0",
+"FFlagOptimizeCFrameUpdates": "True",
+"FIntRakNetResendBufferArrayLength": "128",
+
+  "DFIntRakNetResendRttMultiple": "1",
+  "DFIntRaknetBandwidthPingSendEveryXSeconds": "1",
+
+  "DFIntPlayerNetworkUpdateQueueSize": "20",
+  "DFIntPlayerNetworkUpdateRate": "60",
+
+  "DFIntNetworkLatencyTolerance": "1",
+
+  "DFIntLargePacketQueueSizeCutoffMB": "1000",
+
+  "DFIntMaxProcessPacketsStepsAccumulated": "0",
+  "DFIntMaxProcessPacketsStepsPerCyclic": "5000",
+
+  "DFIntMegaReplicatorNetworkQualityProcessorUnit": "10",
+
+  "DFIntRakNetLoopMS": "1",
+  "DFIntWaitOnRecvFromLoopEndedMS": "100",
+  "DFIntWaitOnUpdateNetworkLoopEndedMS": "100",
+
+  "DFIntCodecMaxIncomingPackets": "100",
+  "DFIntCodecMaxOutgoingFrames": "1000",
+"TerrainArraySliceSize": "0",
+"FFlagDisableDecals": "True",
+"FFlagReuseTextures": "True",
+"FFlagGraphicsTextureCopy": "True",
+"FFlagEnableTerrainOptimizations": "True",
+"FFlagEnableTerrainFoliageOptimizations": "True",
+"FIntTerrainOTAMaxTextureSize": "4",
+"FFlagDisableWaterEffects": "True",
+"FFlagNoWaterReflection": "True",
+"FFlagUseDynamicSun": "False",
+"FFlagGlobalWindActivated": "False",
+"FFlagGlobalWindRendering": "False",
+"FFlagLowLOD": "True",
+"FFlagLowVertex": "True",
+"FFlagReduceFillrate": "True",
+"FFlagDisableDetailModels": "True",
+"FFlagLimitVertexShaderConsts": "True",
+"FFlagDisableTrilinearFiltering": "True",
+  "DFFlagDisableEmitters": "True",
+  "FFlagDebugDisableParticleSystem": "True",
+  "FFlagDisableTrails": "True",
+  "FFlagRenderParticles": "False",
+    "FFlagFixOutdatedParticles2": "False",
+    "FFlagFixOutdatedTimeScaleParticles": "False",
+"FIntParticleMaxCount": "0",
+"FIntParticleLODBias": "10",
+"DFFlagClampIncomingReplicationLag": "True",
+"DFIntTouchSenderMaxBandwidthBps": "-1",
+"FFlagDisableAnimations": "True",
+"FIntActivatedCountTimerMSMouse": "0",
+"FIntActivatedCountTimerMSKeyboard": "0",
+"DFIntFrameRateMSToReduceTouchEvents": "30",
+"FIntSmoothMouseSpringFrequencyTenths": "100",
+"FFlagMouseGetPartOptimization": "True",
+"FFlagMergeFakeInputEvents3": "True",
+"DFIntSendItemLimit": "5",
+"DFIntDataSenderRate": "20000",
+"DFIntSendRakNetStatsInterval": "2147483647",
+"DFIntSendGameServerDataMaxLen": "9999999",
+"DFIntClientNetworkInfluxHundredthsPercentage": "0",
+"DFIntRaknetBandwidthInfluxHundredthsPercentageV2": "10000",
+"DFIntWaitOnRecvFromLoopEndedMS": "10",
+"DFIntWaitOnUpdateNetworkLoopEndedMS": "100",
+"DFIntMaxReceiveToDeserializeLatencyMilliseconds": "10",
+"DFIntCodecMaxIncomingPackets": "500",
+"DFIntCodecMaxOutgoingFrames": "2000",
+"DFIntBufferCompressionThreshold": "100",
+"DFIntBufferCompressionLevel": "0",
+"DFIntInterpolationNumParallelTasks": "5",
+"DFIntInterpolationMaxDelayMSec": "100",
+"DFIntMaxMissedWorldStepsRemembered": "2147483467",
+"DFFlagReplicatorSeparateVarThresholds": "True",
+"DFFlagReplicatorCheckReadTableCollisions": "True",
+"DFFlagOnlyDecrementCompletenessIfReplicating": "True",
+"DFFlagReplicateCreateToPlayer": "True",
+"DFIntReplicatorAnimationTrackLimitPerAnimator": "-1",
+"DFFlagFastEndUpdateLoop": "True",
+"DFFlagRakNetUnblockSelectOnShutdownByWritingToSocket": "True",
+"DFIntConnectingTimerInterval": "10",
+"DFIntTimeBetweenSendConnectionAttemptsMS": "200",
+"DFIntNetworkQualityResponderUnit": "10",
+"DFIntNetworkInProcessLimitGameplayMsClient": "0",
+"DFIntRakNetApplicationFeedbackMaxSpeedBPS": "0",
+"DFIntRakNetApplicationFeedbackScaleUpThresholdPercent": "0",
+"DFIntRakNetApplicationFeedbackScaleUpFactorHundredthPercent": "0",
+"DFIntRakNetNakResendDelayMsMax": "15",
+"DFFlagRakNetDetectNetUnreachable": "True",
+"DFIntNetworkQualityResponderMaxWaitTime": "50",
+"DFIntReplicationDataCacheNumParallelTasks": "5",
+"DFIntNetworkClusterPacketCacheNumParallelTasks": "5",
+"DFIntMegaReplicatorNumParallelTasks": "5",
+"FIntInterpolationMaxDelayMSec": "100",
+"DFIntMaxReceiveToDeserializeLatencyMilliseconds": "10",
+"DFIntMaxProcessPacketsStepsAccumulated": "0",
+"DFIntMaxProcessPacketsStepsPerCyclic": "5000",
+"DFIntClientPacketMaxDelayMs": "15",
+"DFIntClientPacketExcessMicroseconds": "1000",
+"DFIntClientPacketHealthyAllocationPercent": "20",
+"DFIntClientPacketMaxFrameMicroseconds": "200",
+"DFFlagSimOptimizeSetSize": "True",
+"DFFlagJointIrregularityOptimization": "True",
+"DFFlagSolverStateReplicatedOnly2": "True",
+"FIntSimSolverResponsiveness": "2147483647",
+"DFIntGraphicsOptimizationModeFRMFrameRateTarget": "144",
+"DFFlagFixTextureCompositorFramebufferManagement2": "True",
+"DFIntGraphicsOptimizationModeMaxFrameTimeTargetMs": "25",
+ "DFStringCrashUploadToBacktraceBaseUrl": "http://opt-out.roblox.com",
+    "DFStringAnalyticsEventStreamUrlEndpoint": "opt-out",
+"FFlagOptimizeNetwork": "True",
+"FFlagOptimizeNetworkRouting": "True",
+"FFlagOptimizeNetworkTransport": "True",
+"FFlagRenderGpuTextureCompressor": "True",
+  "FStringTerrainMaterialTablePre2022": "",
+    "FStringTerrainMaterialTable2022": "",
+"FFlagLightgridCPUAsyncUpdate": "True",
+"FFlagGraphicsGLEnableHQShadersExclusion": "False",
+  "FFlagDebugDisableTelemetryV2Stat": "True",
+  "FFlagRenderPerformanceTelemetry": "False",
+  "FStringPartTexturePackTable2022": "",
+    "FStringPartTexturePackTablePre2022": "",
+"DFFlagTeleportClientAssetPreloadingEnabled9": "True",
+  "DFIntAnimationLodFacsDistanceMax": "0",
+    "DFIntTextureCompositorActiveJobs": "0",
+    "TextureCompositorActiveJobs": "0",
+"FFlagDebugDisableTelemetryEphemeralStat": "True",
+"FFlagDebugDisableTelemetryPoint": "True",
+  "FFlagDontCreatePingJob": "True",
+"FFlagDisableMaterials": "True",
+"FFlagDisableLighting": "True",
+"FFlagDisableBloom": "True",
+"FFlagDisableHDR": "True",
+"FFlagDisableAntialiasing": "True",
+"FFlagDisableBumpMap": "True",
+"FFlagDisableSpecular": "True",
+"FFlagDisableSoftParticles": "True",
+"FFlagDisableParticles": "True",
+"FFlagNoGibs": "True",
+"FFlagNoBlood": "True",
+    "DFFlagDisableDPIScale": "False",
+    "DFIntTeleportClientAssetPreloadingHundredthsPercentage": "100000",
+    "DFFlagTeleportClientAssetPreloadingDoingExperiment": "True",
+    "FFlagAssetPreloadingIXP": "True",
+  "DFFlagMergeFakeInputEvents3": "True",
+  "FFlagStyleEngineV2": "True",
+"FIntGrassMovementReducedMotionFactor": "0",
+  "DFFlagDebugSkipMeshVoxelizer": "True",
+
+  "DFIntHACDPointSampleDistApartTenths": "1000",
+
+  "DFIntCSGLevelOfDetailSwitchingDistance": "0",
+  "DFIntCSGLevelOfDetailSwitchingDistanceL23": "0",
+  "DFIntCSGLevelOfDetailSwitchingDistanceL34": "0",
+    "CSGLevelOfDetailSwitchingDistanceL12": "0",
+    "CSGLevelOfDetailSwitchingDistanceL23": "0",
+    "CSGLevelOfDetailSwitchingDistanceL34": "0",
+    "CSGLevelOfDetailSwitchingDistance": "0",
+
+  "FIntRenderMeshOptimizeVertexBuffer": "1",
+
+  "FIntDefaultMeshCacheSizeMB": "128",
+  "FIntMeshContentProviderForceCacheSize": "134217728",
+    "DebugLimitMinTextureResolutionWhenSkipMips": "9999999999999999",
+
+  "DFIntAnimationLodFacsVisibilityDenominator": "0",
+  "DFIntAnimationLodFacsDistanceMin": "0",
+  "DFIntAnimationLodFacsDistanceMax": "0",
+  "FFlagOnlyDecrementCompletenessIfReplicating": "True",
+  "FFlagEnableQuickGameLaunch": "True",
+"FFlagDebugDisableTelemetryEphemeralCounter": "True",
+  "DFIntCSGLevelOfDetailSwitchingDistanceL12": "0",
+
+  "DFFlagSimOptimizeSetSize": "True",
+  "DFFlagOptimizeIsA": "True",
+  "FIntRenderLocalLightUpdatesMax": "1",
+  "DFFlagAllowPropertyDefaultSkip": "True",
+  "DFIntClientLightingTechnologyChangedTelemetryHundredthsPercent": "0",
+  "FFlagDebugDisableTelemetryV2Counter": "True",
+"TM2SkipMipsForUnstreamable2": "True",
+    "DebugTextureManagerSkipMips": "10",
+    "DFIntDebugTextureManagerSkipMips": "10",
+  "FIntVertexSmoothingGroupTolerance": "0",
+  "DFFlagReplicateCreateToPlayer": "True",
+  "FFlagEnableAnimatorSkipCopyPreviousRigKeyOnJointModification": "True",
+  "FIntUITextureMaxUpdateDepth": "1",
+  "DFIntDebugFRMQualityLevelOverride": 1,
+  "FFlagDisablePostFx": "True",
+  "DFFlagTextureQualityOverrideEnabled": "True",
+  "FFlagEnableTextureStreaming": "True",
+  "DFIntTextureQualityOverride": "0",
+  "FIntRenderGrassDetailStrands": "0",
+  "FFlagCloudsReflectOnWater": "False",
+  "FFlagFastGPULightCulling3": "True",
+  "FFlagTaskSchedulerLimitTargetFpsTo2402": "True",
+  "DFIntTaskSchedulerTargetFps": 240,
+  "FIntFRMMaxGrassDistance": "0",
+  "FIntFRMMinGrassDistance": "0",
+
+  "FIntSSAO": "0",
+  "FIntRenderShadowIntensity": "0",
+  "FIntDebugFRMOptionalMSAALevelOverride": "0",
+  "FIntSSAOMipLevels": "0",
+  "DFFlagDebugPauseVoxelizer": "True",
+  "FFlagDebugGraphicsPreferD3D11": "True",
+  "FFlagDebugSkyGray": "True",
+"FStringErrorUploadToBacktraceBaseUrl": "http://opt-out.roblox.com",
+"FStringPerformanceSendMeasurementAPISubdomain": "opt-out",
+   
+    "DFStringAltHttpPointsReporterUrl": "http://opt-out.roblox.com",
+    "DFStringHttpPointsReporterUrl": "http://opt-out.roblox.com",
+    "DFStringRobloxAnalyticsURL": "http://opt-out.roblox.com",
+    "DFStringAnalyticsEventStreamUrlEndpoint": "opt-out",
+    "DFStringRobloxAnalyticsSubDomain": "opt-out",
+"FFlagAvatarChatIncludeSelfViewOnTelemetry": "False",
+"FFlagDebugDisableTelemetryEphemeralStat": "True",
+"FFlagContentProviderPreloadHangTelemetry": "False",
+"FFlagDebugDisableTelemetryEventIngest": "True",
+"FFlagLuauCodegen": "True",
+"DFIntVideoMaxNumberOfVideosPlaying": "0",
+"FFlagRenderGpuTextureCompressor": "True",
+"FFlagMessageBusCallOptimization": "True",
+    "DebugDisplayFPS": "True",
+    "EnablePowerTraceModule": "True",
+
+    "FFlagEnableAccessibilitySettingsEffectsInExperienceChat": "true",
+    "FFlagEnableAccessibilitySettingsEffectsInCoreScripts2": "true",
+    "FFlagEnableAccessibilitySettingsInExperienceMenu2": "true",
+    "FFlagEnableAccessibilitySettingsAPIV2": "true",
+
+    "FFlagGraphicsSettingsOnlyShowValidModes": "True",
+    "FFlagHandleAltEnterFullscreenManually": "False",
+
+    "FFlagUserPreventOldBubbleChatOverlap": "False",
+    "FFlagEnableBubbleChatFromChatService": "False",
+    "FFlagEnableBubbleChatConfigurationV2": "False",
+
+    "FFlagEnableReportAbuseMenuRoactABTest2": "False",
+    "FFlagEnableReportAbuseMenuLayerOnV3": "False",
+    "FFlagEnableReportAbuseMenuRoact2": "False",
+
+    "FFlagEnableMenuModernizationABTest2": "False",
+    "FFlagEnableMenuModernizationABTest": "False",
+    "FFlagEnableInGameMenuModernization": "False",
+    "FFlagEnableInGameMenuChromeABTest2": "False",
+    "FFlagEnableInGameMenuControls": "False",
+    "FFlagEnableMenuControlsABTest": "False",
+    "FFlagInGameMenuV1FullScreenTitleBar": "False",
+
+    "FFlagBetaBadgeLearnMoreLinkFormview": "False",
+    "FFlagEnableBetaBadgeLearnMore": "False",
+    "FFlagControlBetaBadgeWithGuac": "False",
+    "FFlagVoiceBetaBadge": "False",
+    "FFlagTopBarUseNewBadge": "False",
+
+    "FFlagEnableFavoriteButtonForUgc": "true",
+
+    "FFlagEnableNewInviteMenuIXP2": "False",
+    "FFlagEnableAudioOutputDevice": "False",
+
+    "FFlagPreloadMinimalFonts": "True",
+    "FFlagPreloadAllFonts": "True",
+
+    "FFlagCommitToGraphicsQualityFix": "True",
+    "FFlagFixGraphicsQuality": "True",
+
+    "FFlagAdServiceEnabled": "False",
+    "FFlagLuaAppSystemBar": "False",
+    "FFlagCoreGuiTypeSelfViewPresent": "False",
+
+    "FFlagRenderCheckThreading": "True",
+    "FFlagNewLightAttenuation": "True",
+
+    "FIntFullscreenTitleBarTriggerDelayMillis": "3600000",
+    "FIntStartupInfluxHundredthsPercentage": "0",
+    "FIntFontSizePadding": "1",
+
+    "IncludePowerSaverMode": "True",
+    "PerformanceControlTextureQualityBestUtility": "-1",
+
+    "RenderUseTextureManager224": "False",
+    "RenderShadowmapBias": "75"
+}]]
+
+-- ================================
+-- INPUT
+-- ================================
+
+-- ===== GUI BUTTON =====
+-- HIGH JUMP (tap = cÃÂÃÂ© | hold = mÃÂ¡ÃÂ»ÃÂi)
+local holding = false
+local holdStart = 0
+local holdUsed = false
+
+local function StartHold()
+    if holding or not Enabled then return end
+    holding = true
+    holdUsed = false
+    holdStart = tick()
+
+    task.spawn(function()
+        local singleDone = false
+
+        while holding do
+            local t = tick() - holdStart
+
+            -- giÃÂ¡ÃÂ»ÃÂ¯ >= 0.25s ÃÂ¢ÃÂÃÂ nhÃÂ¡ÃÂºÃÂ£y thÃÂ¡ÃÂºÃÂ³ng lÃÂÃÂªn 1 lÃÂ¡ÃÂºÃÂ§n
+            if t >= Setting.HoldSingleTime and not singleDone then
+                UpJump(Setting.HoldJumpPower)
+                singleDone = true
+                holdUsed = true
+            end
+
+            -- giÃÂ¡ÃÂ»ÃÂ¯ >= 1s ÃÂ¢ÃÂÃÂ nhÃÂ¡ÃÂºÃÂ£y liÃÂÃÂªn tÃÂ¡ÃÂ»ÃÂ¥c
+            if t >= Setting.HoldLoopTime then
+                UpJump(Setting.HoldJumpPower)
+                task.wait(Setting.HoldLoopDelay)
+            else
+                task.wait()
+            end
+        end
+    end)
+end
+
+local function StopHold()
+    if not holding then return end
+    holding = false
+
+    -- bÃÂ¡ÃÂºÃÂ¥m nhanh ÃÂ¢ÃÂÃÂ dÃÂÃÂ¹ng High Jump cÃÂÃÂ©
+    if not holdUsed and Enabled then
+        DoJump()
+    end
+end
+
+-- HIGH JUMP BUTTON
+JumpButton.MouseButton1Down:Connect(StartHold)
+JumpButton.MouseButton1Up:Connect(StopHold)
+JumpButton.MouseLeave:Connect(StopHold)
+
+-- ===== MENU / OTHER BUTTONS =====
+local lastClick = 0
+ToggleButton.MouseButton1Click:Connect(function()
+    local now = tick()
+    Menu.Visible = not Menu.Visible
+    UpdateButtonTransparency()
+
+    -- double click ÃÂÃÂÃÂ¡ÃÂ»ÃÂ bÃÂ¡ÃÂºÃÂ­t / tÃÂ¡ÃÂºÃÂ¯t
+    if now - lastClick < 0.25 then
+        Enabled = not Enabled
+        JumpButton.Visible = Enabled
+    end
+    lastClick = now
+end)
+
+BT.MouseButton1Click:Connect(function()
+    Enabled = not Enabled
+    BT.Text = Enabled and "b" or "t"
+    JumpButton.Visible = Enabled
+end)
+
+ModeBT.MouseButton1Click:Connect(function()
+    JumpByMoveDirection = not JumpByMoveDirection
+    ModeBT.Text = JumpByMoveDirection and "MOVE" or "CAM"
+end)
+
+FlyBT.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Fly-gui-54742"))()
+end)
+
+CopyBT.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(CONFIG_TEXT)
+        CopyBT.Text = "✓"
+        task.delay(0.8, function()
+            CopyBT.Text = "C"
+        end)
+    else
+        warn("Executor khÃÂ´ng hÃ¡Â»Â trÃ¡Â»Â£ copy clipboard")
+    end
+end)
+
+SpeedBox.FocusLost:Connect(function()
+    local v = tonumber(SpeedBox.Text)
+    if v then Setting.ForwardJumpSpeed = v end
+end)
+
+AngleBox.FocusLost:Connect(function()
+    local v = tonumber(AngleBox.Text)
+    if v then Setting.UpAngle = math.clamp(v, 5, 80) end
+end)
+
+-- ===== KEYBOARD =====
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode[Setting.JumpKey] then
+        StartHold()
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode[Setting.JumpKey] then
+        StopHold()
+    end
+end)
+
+-- ================================
+-- SLIDER (PC + MOBILE)
+-- ================================
+local dragging = false
+
+local function UpdateFromInput(input)
+    local pos = math.clamp(
+        (input.Position.X - TransBar.AbsolutePosition.X) / TransBar.AbsoluteSize.X,
+        0, 1
+    )
+    ButtonTransparency = 1 - pos
+    TransFill.Size = UDim2.new(pos,0,1,0)
+    PercentLabel.Text = math.floor(pos * 100) .. "%"
+    UpdateButtonTransparency()
+end
+
+TransBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        UpdateFromInput(input)
+    end
+end)
+
+TransBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (
+        input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+    ) then
+        UpdateFromInput(input)
+    end
+end)
